@@ -1,0 +1,58 @@
+<html lang="en">
+<head>
+<link rel="stylesheet" type="text/css" href="../userdocs.css" />
+<title>Tool: CryoRemote</title>
+<style>@media (prefers-color-scheme: dark) { :root { color-scheme: dark; } }</style>
+</head>
+<body>
+<a href="../index.html">
+<img width="60px" src="../ChimeraX-docs-icon.svg" alt="ChimeraX docs icon"
+class="clRighticon" title="ChimeraX User Guide Index"/>
+</a>
+
+<h3><a href="../index.html#tools">Tool</a>: CryoRemote</h3>
+
+<p style="text-align:center">
+<img src="../../assets/brand/cryoremote-wordmark-1536x512.png" alt="CryoRemote wordmark" style="max-width: 100%; width: 720px;" />
+</p>
+
+<p>
+CryoRemote provides an SSH/SFTP-oriented RELION-first project browser inside ChimeraX.
+It imports direct OpenSSH aliases from <code>~/.ssh/config</code>, browses remote files,
+indexes RELION projects from remote <code>default_pipeline.star</code>, previews metadata and MRC headers,
+and caches maps/models locally before opening them in ChimeraX.
+</p>
+
+<p style="text-align:center">
+<img src="../../assets/docs/overview-hero-1600x900.png" alt="CryoRemote overview hero" style="max-width: 100%; width: 860px;" />
+</p>
+
+<h4>Phase 1 capabilities</h4>
+<ul>
+<li>Connect to direct SSH aliases with public keys, agent support, password fallback, and keyboard-interactive prompts</li>
+<li>Browse remote directories with lazy loading</li>
+<li>Show RELION projects as both a pipeline flowchart and a job table</li>
+<li>Refresh RELION status inside the active ChimeraX session with a session-bound watcher</li>
+<li>Preview <code>.star</code>, <code>.txt</code>, <code>.log</code>, <code>.json</code>, <code>.out</code>, <code>.err</code>, and <code>.cxc</code> remotely with execution confirmation</li>
+<li>Preview MRC/MAP headers without downloading the full file</li>
+<li>Cache <code>.mrc</code>, <code>.map</code>, <code>.pdb</code>, <code>.cif</code>, and source copies of remote <code>.cxc</code> files locally before opening</li>
+<li>Open a remote <code>.cxc</code> by rewriting supported <code>open ...</code> file operands to local cache paths and then opening the rewritten local command file in ChimeraX</li>
+<li>Recognize common RELION layouts and expose actions for latest refine maps, last completed jobs, half maps, and postprocess+model pairs</li>
+<li>Show related files, parent/child jobs, and next-action hints for the selected RELION job</li>
+<li>Use a bundled Agnes-generated Scientific Cryo Blue asset pack for branding, empty-state illustration, and action icons</li>
+</ul>
+
+<h4>Limitations</h4>
+<ul>
+<li><code>ProxyJump</code>, <code>ProxyCommand</code>, <code>Include</code>, and <code>Match</code> are detected and warned about, but not implemented in phase 1</li>
+<li>Streaming full maps is not implemented; maps are cached locally before opening</li>
+<li>Remote <code>.cxc</code> support only rewrites the leading file operands of <code>open ...</code>; nested <code>.cxc</code>, <code>forEachFile</code>, <code>coords</code>, and other option-level path semantics are not rewritten</li>
+<li>Detached background watchers, cryoSPARC <code>.cs</code>, Slurm integration, and arbitrary remote command execution are deferred</li>
+</ul>
+
+<p style="text-align:center">
+<img src="../../assets/illustrations/empty-state-connect-1600x1200.png" alt="CryoRemote empty state illustration" style="max-width: 100%; width: 640px;" />
+</p>
+
+</body>
+</html>

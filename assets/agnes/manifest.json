@@ -1,0 +1,179 @@
+{
+  "generated_at": "2026-06-23T21:44:49.3159832+08:00",
+  "model": "agnes-image-2.1-flash",
+  "style_anchor": "scientific cryo-EM UI branding, icy blue and steel gray palette, clean high-contrast glyphs, voxel density-map hints, subtle SSH/network motifs, no text unless explicitly requested, software-product clarity, not cartoonish",
+  "items": [
+    {
+      "key": "brand_mark",
+      "kind": "base",
+      "model": "agnes-image-2.1-flash",
+      "prompt": "A simplified flat software emblem for CryoRemote, scientific cryo-EM UI branding, icy blue and steel gray palette, clean high-contrast glyphs, voxel density-map hints, subtle SSH/network motifs, no text unless explicitly requested, software-product clarity, not cartoonish, a single snowflake-remote-node symbol, vector-like, minimal background, no text",
+      "size": "1024x1024",
+      "reference_images": [],
+      "url": "https://platform-outputs.agnes-ai.space/images/t2i/02955dcb7cd14f34bceade69e2162406.png",
+      "local_path": "brand/cryoremote-mark-1024.png"
+    },
+    {
+      "key": "connect",
+      "kind": "icon",
+      "model": "agnes-image-2.1-flash",
+      "prompt": "A centered software action icon for connect, a network plug connecting into a remote node, scientific cryo-EM UI branding, icy blue and steel gray palette, clean high-contrast glyphs, voxel density-map hints, subtle SSH/network motifs, no text unless explicitly requested, software-product clarity, not cartoonish, single subject, centered, thick silhouette, minimal interior detail, readable at 20 px after downscaling",
+      "size": "512x512",
+      "reference_images": [
+        "https://platform-outputs.agnes-ai.space/images/t2i/02955dcb7cd14f34bceade69e2162406.png"
+      ],
+      "url": "https://platform-outputs.agnes-ai.space/images/i2i/677ea7519e1f4ae0ab5188f3199d9df6/output.png",
+      "local_path": "icons/connect-512.png"
+    },
+    {
+      "key": "disconnect",
+      "kind": "icon",
+      "model": "agnes-image-2.1-flash",
+      "prompt": "A centered software action icon for disconnect, a disconnected plug and remote node with a clean separation gap, scientific cryo-EM UI branding, icy blue and steel gray palette, clean high-contrast glyphs, voxel density-map hints, subtle SSH/network motifs, no text unless explicitly requested, software-product clarity, not cartoonish, single subject, centered, thick silhouette, minimal interior detail, readable at 20 px after downscaling",
+      "size": "512x512",
+      "reference_images": [
+        "https://platform-outputs.agnes-ai.space/images/t2i/02955dcb7cd14f34bceade69e2162406.png"
+      ],
+      "url": "https://platform-outputs.agnes-ai.space/images/i2i/83f7e2317f7d4912a80363a026c27194/output.png",
+      "local_path": "icons/disconnect-512.png"
+    },
+    {
+      "key": "refresh",
+      "kind": "icon",
+      "model": "agnes-image-2.1-flash",
+      "prompt": "A centered software action icon for refresh, a circular sync arrow wrapped around a density-map node, scientific cryo-EM UI branding, icy blue and steel gray palette, clean high-contrast glyphs, voxel density-map hints, subtle SSH/network motifs, no text unless explicitly requested, software-product clarity, not cartoonish, single subject, centered, thick silhouette, minimal interior detail, readable at 20 px after downscaling",
+      "size": "512x512",
+      "reference_images": [
+        "https://platform-outputs.agnes-ai.space/images/t2i/02955dcb7cd14f34bceade69e2162406.png"
+      ],
+      "url": "https://platform-outputs.agnes-ai.space/images/i2i/d2892d41a57241ad874277ffeeeffc76/output.png",
+      "local_path": "icons/refresh-512.png"
+    },
+    {
+      "key": "clear_cache",
+      "kind": "icon",
+      "model": "agnes-image-2.1-flash",
+      "prompt": "A centered software action icon for clear_cache, a clean storage box with a small sparkle erase mark, scientific cryo-EM UI branding, icy blue and steel gray palette, clean high-contrast glyphs, voxel density-map hints, subtle SSH/network motifs, no text unless explicitly requested, software-product clarity, not cartoonish, single subject, centered, thick silhouette, minimal interior detail, readable at 20 px after downscaling",
+      "size": "512x512",
+      "reference_images": [
+        "https://platform-outputs.agnes-ai.space/images/t2i/02955dcb7cd14f34bceade69e2162406.png"
+      ],
+      "url": "https://platform-outputs.agnes-ai.space/images/i2i/8bc2e559bc2d42ccb8e2683868b9194c/output.png",
+      "local_path": "icons/clear-cache-512.png"
+    },
+    {
+      "key": "flowchart",
+      "kind": "icon",
+      "model": "agnes-image-2.1-flash",
+      "prompt": "A centered software action icon for flowchart, a compact flowchart of linked process nodes, scientific cryo-EM UI branding, icy blue and steel gray palette, clean high-contrast glyphs, voxel density-map hints, subtle SSH/network motifs, no text unless explicitly requested, software-product clarity, not cartoonish, single subject, centered, thick silhouette, minimal interior detail, readable at 20 px after downscaling",
+      "size": "512x512",
+      "reference_images": [
+        "https://platform-outputs.agnes-ai.space/images/t2i/02955dcb7cd14f34bceade69e2162406.png"
+      ],
+      "url": "https://platform-outputs.agnes-ai.space/images/i2i/a709747baecb458ebfc3f54945d33352/output.png",
+      "local_path": "icons/flowchart-512.png"
+    },
+    {
+      "key": "jobs",
+      "kind": "icon",
+      "model": "agnes-image-2.1-flash",
+      "prompt": "A centered software action icon for jobs, a structured table grid with three organized rows, scientific cryo-EM UI branding, icy blue and steel gray palette, clean high-contrast glyphs, voxel density-map hints, subtle SSH/network motifs, no text unless explicitly requested, software-product clarity, not cartoonish, single subject, centered, thick silhouette, minimal interior detail, readable at 20 px after downscaling",
+      "size": "512x512",
+      "reference_images": [
+        "https://platform-outputs.agnes-ai.space/images/t2i/02955dcb7cd14f34bceade69e2162406.png"
+      ],
+      "url": "https://platform-outputs.agnes-ai.space/images/i2i/08fd5c1f45e74a82b4d2dadd54736ef9/output.png",
+      "local_path": "icons/jobs-512.png"
+    },
+    {
+      "key": "latest_refine",
+      "kind": "icon",
+      "model": "agnes-image-2.1-flash",
+      "prompt": "A centered software action icon for latest_refine, a refined 3D density map with a small star badge, scientific cryo-EM UI branding, icy blue and steel gray palette, clean high-contrast glyphs, voxel density-map hints, subtle SSH/network motifs, no text unless explicitly requested, software-product clarity, not cartoonish, single subject, centered, thick silhouette, minimal interior detail, readable at 20 px after downscaling",
+      "size": "512x512",
+      "reference_images": [
+        "https://platform-outputs.agnes-ai.space/images/t2i/02955dcb7cd14f34bceade69e2162406.png"
+      ],
+      "url": "https://platform-outputs.agnes-ai.space/images/i2i/89ae62ceb3c3465f9881aa3aeeaef9c9/output.png",
+      "local_path": "icons/latest-refine-512.png"
+    },
+    {
+      "key": "last_completed",
+      "kind": "icon",
+      "model": "agnes-image-2.1-flash",
+      "prompt": "A centered software action icon for last_completed, a completed task document with a bold checkmark, scientific cryo-EM UI branding, icy blue and steel gray palette, clean high-contrast glyphs, voxel density-map hints, subtle SSH/network motifs, no text unless explicitly requested, software-product clarity, not cartoonish, single subject, centered, thick silhouette, minimal interior detail, readable at 20 px after downscaling",
+      "size": "512x512",
+      "reference_images": [
+        "https://platform-outputs.agnes-ai.space/images/t2i/02955dcb7cd14f34bceade69e2162406.png"
+      ],
+      "url": "https://platform-outputs.agnes-ai.space/images/i2i/67304e44fd614bdcb2f02ff976b80924/output.png",
+      "local_path": "icons/last-completed-512.png"
+    },
+    {
+      "key": "half_maps",
+      "kind": "icon",
+      "model": "agnes-image-2.1-flash",
+      "prompt": "A centered software action icon for half_maps, two paired density maps side by side, scientific cryo-EM UI branding, icy blue and steel gray palette, clean high-contrast glyphs, voxel density-map hints, subtle SSH/network motifs, no text unless explicitly requested, software-product clarity, not cartoonish, single subject, centered, thick silhouette, minimal interior detail, readable at 20 px after downscaling",
+      "size": "512x512",
+      "reference_images": [
+        "https://platform-outputs.agnes-ai.space/images/t2i/02955dcb7cd14f34bceade69e2162406.png"
+      ],
+      "url": "https://platform-outputs.agnes-ai.space/images/i2i/7fa3c9682c5a433097eacc1f062d950c/output.png",
+      "local_path": "icons/half-maps-512.png"
+    },
+    {
+      "key": "postprocess_model",
+      "kind": "icon",
+      "model": "agnes-image-2.1-flash",
+      "prompt": "A centered software action icon for postprocess_model, a density map paired with an atomic model ribbon, scientific cryo-EM UI branding, icy blue and steel gray palette, clean high-contrast glyphs, voxel density-map hints, subtle SSH/network motifs, no text unless explicitly requested, software-product clarity, not cartoonish, single subject, centered, thick silhouette, minimal interior detail, readable at 20 px after downscaling",
+      "size": "512x512",
+      "reference_images": [
+        "https://platform-outputs.agnes-ai.space/images/t2i/02955dcb7cd14f34bceade69e2162406.png"
+      ],
+      "url": "https://platform-outputs.agnes-ai.space/images/i2i/6b0545430a8b4518990f99e60af2a88a/output.png",
+      "local_path": "icons/postprocess-model-512.png"
+    },
+    {
+      "key": "find_tree",
+      "kind": "icon",
+      "model": "agnes-image-2.1-flash",
+      "prompt": "A centered software action icon for find_tree, a folder tree with a search highlight ring, scientific cryo-EM UI branding, icy blue and steel gray palette, clean high-contrast glyphs, voxel density-map hints, subtle SSH/network motifs, no text unless explicitly requested, software-product clarity, not cartoonish, single subject, centered, thick silhouette, minimal interior detail, readable at 20 px after downscaling",
+      "size": "512x512",
+      "reference_images": [
+        "https://platform-outputs.agnes-ai.space/images/t2i/02955dcb7cd14f34bceade69e2162406.png"
+      ],
+      "url": "https://platform-outputs.agnes-ai.space/images/i2i/7a0311ff28704cbb9229761c1a036f77/output.png",
+      "local_path": "icons/find-tree-512.png"
+    },
+    {
+      "key": "brand_wordmark",
+      "kind": "base",
+      "model": "agnes-image-2.1-flash",
+      "prompt": "A horizontal software brand banner for CryoRemote, exact text CryoRemote, geometric sans-serif lettering integrated with a scientific cryo-EM emblem on the left, scientific cryo-EM UI branding, icy blue and steel gray palette, clean high-contrast glyphs, voxel density-map hints, subtle SSH/network motifs, no text unless explicitly requested, software-product clarity, not cartoonish, centered on a clean pale background, crisp readable lettering, premium scientific software style",
+      "size": "1536x512",
+      "reference_images": [],
+      "url": "https://platform-outputs.agnes-ai.space/images/t2i/ad480ae027474a0992910517e09c55a6.png",
+      "local_path": "brand/cryoremote-wordmark-1536x512.png"
+    },
+    {
+      "key": "overview_hero",
+      "kind": "base",
+      "model": "agnes-image-2.1-flash",
+      "prompt": "A polished product hero illustration for CryoRemote, a RELION-first cryo-EM remote browser connecting an SSH cluster to density maps and a pipeline flowchart, scientific software UI mockup hints, scientific cryo-EM UI branding, icy blue and steel gray palette, clean high-contrast glyphs, voxel density-map hints, subtle SSH/network motifs, no text unless explicitly requested, software-product clarity, not cartoonish, wide cinematic composition, clear product storytelling, no small unreadable text",
+      "size": "1600x900",
+      "reference_images": [],
+      "url": "https://platform-outputs.agnes-ai.space/images/t2i/8c7f7e52384c4757a69121b2e3bf720d.png",
+      "local_path": "docs/overview-hero-1600x900.png"
+    },
+    {
+      "key": "empty_state",
+      "kind": "base",
+      "model": "agnes-image-2.1-flash",
+      "prompt": "An empty state illustration for a scientific software tool waiting for SSH connection, a calm cryo-EM workstation linked to a remote cluster, soft density-map volume hints and pipeline nodes, scientific cryo-EM UI branding, icy blue and steel gray palette, clean high-contrast glyphs, voxel density-map hints, subtle SSH/network motifs, no text unless explicitly requested, software-product clarity, not cartoonish, centered subject with generous whitespace, suitable for UI empty state, no text",
+      "size": "1600x1200",
+      "reference_images": [],
+      "url": "https://platform-outputs.agnes-ai.space/images/t2i/1887c1ddaf8848d99e5fccf90a1142da.png",
+      "local_path": "illustrations/empty-state-connect-1600x1200.png"
+    }
+  ]
+}

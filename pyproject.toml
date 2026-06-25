@@ -1,0 +1,167 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ChimeraX-CryoRemote"
+version = "0.1.0"
+description = "SSH/SFTP remote browser for cryo-EM workflows in ChimeraX."
+readme = "README.md"
+license = "MIT"
+authors = [
+  { name = "inter" }
+]
+dynamic = ["classifiers", "requires-python"]
+dependencies = [
+  "ChimeraX-Core~=1.11",
+  "ChimeraX-UI~=1.11",
+  "paramiko>=3.4,<4",
+  "mrcfile>=1.5,<2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8,<9",
+  "ruff>=0.6,<1",
+]
+
+[project.urls]
+Repository = "https://github.com/inter/CryoRemote"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "F",
+  "I",
+  "N",
+  "B",
+  "SIM",
+]
+ignore = ["E501", "N999"]
+
+[chimerax]
+pure = true
+package = "chimerax.cryoremote"
+min-session-version = 1
+max-session-version = 1
+categories = ["Volume Data"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+]
+
+[chimerax.tool.CryoRemote]
+category = "Volume Data"
+synopsis = "Browse cryo-EM data over SSH and open cached maps/models."
+
+[chimerax.command."cryoremote show"]
+category = "Volume Data"
+synopsis = "Show the CryoRemote tool."
+
+[chimerax.command."cryoremote refresh"]
+category = "Volume Data"
+synopsis = "Refresh the CryoRemote tree and project state."
+
+[chimerax.command."cryoremote refresh pipeline"]
+category = "Volume Data"
+synopsis = "Refresh the active RELION pipeline."
+
+[chimerax.command."cryoremote open latest-refine"]
+category = "Volume Data"
+synopsis = "Open the latest RELION refine map."
+
+[chimerax.command."cryoremote open last-completed"]
+category = "Volume Data"
+synopsis = "Open artifacts from the latest completed RELION job."
+
+[chimerax.command."cryoremote open half-maps"]
+category = "Volume Data"
+synopsis = "Open half maps from the current RELION job."
+
+[chimerax.command."cryoremote open postprocess-model"]
+category = "Volume Data"
+synopsis = "Open the current RELION postprocess map and model."
+
+[chimerax.command."cryoremote find in-tree"]
+category = "Volume Data"
+synopsis = "Focus the current RELION job in the remote tree."
+
+[chimerax.command."cryoremote cache clear"]
+category = "Volume Data"
+synopsis = "Clear the CryoRemote local cache."
+
+[chimerax.toolbar.CryoRemote]
+help = "help:user/tools/CryoRemote.html"
+
+[chimerax.toolbar.CryoRemote.sections.Window]
+[[chimerax.toolbar.CryoRemote.sections.Window.button]]
+name = "show"
+display_name = "Show CryoRemote"
+icon = "cryoremote-mark-1024.png"
+description = "Show CryoRemote tool."
+
+[chimerax.toolbar.CryoRemote.sections.Project]
+[[chimerax.toolbar.CryoRemote.sections.Project.button]]
+name = "refresh-all"
+display_name = "Refresh All"
+icon = "refresh-512.png"
+description = "Refresh the remote tree and project state."
+
+[[chimerax.toolbar.CryoRemote.sections.Project.button]]
+name = "refresh-pipeline"
+display_name = "Refresh Pipeline"
+icon = "refresh-512.png"
+description = "Refresh the active RELION pipeline."
+
+[[chimerax.toolbar.CryoRemote.sections.Project.button]]
+name = "open-latest-refine"
+display_name = "Open Latest Refine"
+icon = "latest-refine-512.png"
+description = "Open the latest RELION refine map."
+
+[[chimerax.toolbar.CryoRemote.sections.Project.button]]
+name = "open-last-completed"
+display_name = "Open Last Completed"
+icon = "last-completed-512.png"
+description = "Open artifacts from the latest completed RELION job."
+
+[chimerax.toolbar.CryoRemote.sections.Job]
+[[chimerax.toolbar.CryoRemote.sections.Job.button]]
+name = "open-half-maps"
+display_name = "Open Half Maps"
+icon = "half-maps-512.png"
+description = "Open half maps from the current RELION job."
+
+[[chimerax.toolbar.CryoRemote.sections.Job.button]]
+name = "open-postprocess-model"
+display_name = "Open PostProcess + Model"
+icon = "postprocess-model-512.png"
+description = "Open the current RELION postprocess map and model."
+
+[[chimerax.toolbar.CryoRemote.sections.Job.button]]
+name = "find-in-tree"
+display_name = "Find In Tree"
+icon = "find-tree-512.png"
+description = "Focus the current RELION job in the remote tree."
+
+[chimerax.toolbar.CryoRemote.sections.Maintenance]
+[[chimerax.toolbar.CryoRemote.sections.Maintenance.button]]
+name = "clear-cache"
+display_name = "Clear Cache"
+icon = "clear-cache-512.png"
+description = "Clear the CryoRemote local cache."
+
+[chimerax.extra-files]
+"src/docs/user/tools" = ["docs/tools/*.html"]
+"src/assets/brand" = ["assets/brand/*.png"]
+"src/assets/illustrations" = ["assets/illustrations/*.png"]
+"src/assets/docs" = ["assets/docs/*.png"]
+"src/assets/icons" = ["assets/icons/*.png"]
+"src/assets/agnes" = ["assets/agnes/*.json"]
+"src/icons" = ["assets/icons/*.png", "assets/brand/cryoremote-mark-1024.png"]
