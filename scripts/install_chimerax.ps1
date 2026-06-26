@@ -63,7 +63,10 @@ if (-not $InnoUnpPath) {
     } else {
         $InnoUnpPath = Join-Path $env:TEMP "innounp.exe"
         if (-not (Test-Path -LiteralPath $InnoUnpPath)) {
-            Invoke-WebRequest -Uri $innoUnpUrl -OutFile $InnoUnpPath
+            & curl.exe -L $innoUnpUrl -o $InnoUnpPath
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to download innounp.exe."
+            }
         }
     }
 }
