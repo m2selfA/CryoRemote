@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate tag matches package version
+        shell: powershell
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: python -c "import os, pathlib, tomllib; data = tomllib.loads(pathlib.Path('pyproject.toml').read_text(encoding='utf-8')); version = data['project']['version']; expected = f'v{version}'; actual = os.environ['TAG_NAME']; assert actual == expected, f'Tag/version mismatch: expected {expected} from pyproject.toml, got {actual}'; print(f'Validated release tag {actual}')"
+
+      - name: Install ChimeraX
+        id: install-chimerax
+        shell: powershell
+        run: |
+          $consolePath = .\scripts\install_chimerax.ps1 -Version "1.12" -Sha256 "45A8368CD8BEE1218973BF615248C306303E61EAD1FC29FA052FE0E22BD22177" -InstallDir "$env:RUNNER_TEMP\ChimeraX"
+          "console_path=$consolePath" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Build ChimeraX bundle wheel
+        shell: powershell
+        run: '& "${{ steps.install-chimerax.outputs.console_path }}" --nogui --cmd "devel build . ; exit"'
+
+      - name: Create or update GitHub Release
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          gh release view $env:TAG_NAME *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $env:TAG_NAME dist/*.whl --clobber
+          } else {
+            gh release create $env:TAG_NAME dist/*.whl --verify-tag --generate-notes --latest
+          }

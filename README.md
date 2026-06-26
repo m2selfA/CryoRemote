@@ -93,6 +93,12 @@ python -m compileall src tests
 chimerax-console.exe --cmd "ui tool show CryoRemote ; exit"
 ```
 
+CI and release automation:
+
+- `.github/workflows/ci.yml` runs `pytest`, `compileall`, then builds a real ChimeraX bundle wheel on Windows and uploads it as a workflow artifact
+- `.github/workflows/release.yml` triggers on `v*` tags, requires the tag to match `pyproject.toml`'s `project.version`, rebuilds the bundle wheel, and creates or updates the matching GitHub Release attachment
+- The release workflows intentionally use `ChimeraX-console.exe --cmd "devel build ."` instead of `python -m build`, because generic setuptools wheels do not produce the correct ChimeraX bundle layout for this repo
+
 Repository layout:
 
 - `src/` - Python bundle code

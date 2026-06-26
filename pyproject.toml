@@ -7,11 +7,15 @@ name = "ChimeraX-CryoRemote"
 version = "0.1.0"
 description = "SSH/SFTP remote browser for cryo-EM workflows in ChimeraX."
 readme = "README.md"
+requires-python = ">=3.11"
 license = "MIT"
 authors = [
   { name = "inter" }
 ]
-dynamic = ["classifiers", "requires-python"]
+dynamic = []
+classifiers = [
+  "Development Status :: 3 - Alpha",
+]
 dependencies = [
   "ChimeraX-Core~=1.11",
   "ChimeraX-UI~=1.11",
@@ -26,7 +30,7 @@ dev = [
 ]
 
 [project.urls]
-Repository = "https://github.com/inter/CryoRemote"
+Repository = "https://github.com/m2selfA/CryoRemote"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -52,9 +56,6 @@ package = "chimerax.cryoremote"
 min-session-version = 1
 max-session-version = 1
 categories = ["Volume Data"]
-classifiers = [
-  "Development Status :: 3 - Alpha",
-]
 
 [chimerax.tool.CryoRemote]
 category = "Volume Data"
