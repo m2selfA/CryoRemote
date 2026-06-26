@@ -64,6 +64,30 @@ synopsis = "Browse cryo-EM data over SSH and open cached maps/models."
 category = "Volume Data"
 synopsis = "Show the CryoRemote tool."
 
+[chimerax.command."cryoremote connect"]
+category = "Volume Data"
+synopsis = "Connect CryoRemote to a remote host for the current ChimeraX session."
+
+[chimerax.command."cryoremote disconnect"]
+category = "Volume Data"
+synopsis = "Disconnect the current CryoRemote session."
+
+[chimerax.command."cryoremote status"]
+category = "Volume Data"
+synopsis = "Show the current CryoRemote session status."
+
+[chimerax.command."cryoremote browse"]
+category = "Volume Data"
+synopsis = "Browse the current CryoRemote root or switch to another remote directory."
+
+[chimerax.command."cryoremote preview path"]
+category = "Volume Data"
+synopsis = "Preview a remote file or directory relative to the current CryoRemote root."
+
+[chimerax.command."cryoremote open path"]
+category = "Volume Data"
+synopsis = "Open a remote file or command file relative to the current CryoRemote root."
+
 [chimerax.command."cryoremote refresh"]
 category = "Volume Data"
 synopsis = "Refresh the CryoRemote tree and project state."

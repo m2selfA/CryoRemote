@@ -28,6 +28,12 @@ class ToolbarPlacement:
 
 COMMAND_METADATA = {
     "cryoremote show": "Show the CryoRemote tool.",
+    "cryoremote connect": "Connect CryoRemote to a remote host for the current ChimeraX session.",
+    "cryoremote disconnect": "Disconnect the current CryoRemote session.",
+    "cryoremote status": "Show the current CryoRemote session status.",
+    "cryoremote browse": "Browse the current CryoRemote root or switch to another remote directory.",
+    "cryoremote preview path": "Preview a remote file or directory relative to the current CryoRemote root.",
+    "cryoremote open path": "Open a remote file or command file relative to the current CryoRemote root.",
     "cryoremote refresh": "Refresh the CryoRemote tree and project state.",
     "cryoremote refresh pipeline": "Refresh the active RELION pipeline.",
     "cryoremote open latest-refine": "Open the latest RELION refine map.",

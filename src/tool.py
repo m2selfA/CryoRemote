@@ -17,8 +17,7 @@ from .actions import (
     TOOLBAR_TAB,
     compute_action_availability,
 )
-from .cache import CacheManager
-from .cxc import CommandFileRewriteError, rewrite_command_file_text
+from .controller import CryoRemoteController
 from .location_memory import (
     RememberedTargetState,
     directory_to_remember,
@@ -47,7 +46,7 @@ from .relion import (
     latest_refine_job,
     load_project_index,
 )
-from .session_ops import open_artifacts, open_half_maps, run_command_file
+from .session_ops import open_artifacts
 from .settings import CryoRemoteSettings
 from .sftp_fs import ParamikoSFTPFileSystem, SFTPConnectionError
 from .ssh_config import load_aliases, normalize_connection_overrides, resolve_host
@@ -75,12 +74,13 @@ class CryoRemoteTool(ToolInstance):
         self.display_name = TOOL_NAME
         self.font = QFont("Arial", 8)
         self.settings = CryoRemoteSettings(session, TOOL_NAME, version="2")
-        self._fs: ParamikoSFTPFileSystem | None = None
-        self._config: ResolvedHostConfig | None = None
+        self._controller = CryoRemoteController.get_for_session(session)
+        self._fs = self._controller.fs
+        self._config = self._controller.config
         self._target_key: str | None = None
-        self._project_index = None
-        self._active_project_root: PurePosixPath | None = None
-        self._cache_manager = CacheManager(self._default_cache_dir())
+        self._project_index = self._controller.project_index
+        self._active_project_root = self._controller.active_project_root
+        self._cache_manager = self._controller.cache_manager
         self._remembered_targets = remembered_targets_from_settings(self.settings.remembered_targets)
 
         self.tool_window = MainToolWindow(self, close_destroys=False)
@@ -88,7 +88,48 @@ class CryoRemoteTool(ToolInstance):
         self._watch_timer = QTimer(self.tool_window.ui_area)
         self._watch_timer.setInterval(WATCH_INTERVAL_MS)
         self._watch_timer.timeout.connect(self._poll_project)
+        self._sync_widget_from_controller()
         self._sync_toolbar_state()
+
+    @property
+    def _fs(self) -> ParamikoSFTPFileSystem | None:
+        return self._controller.fs
+
+    @_fs.setter
+    def _fs(self, value: ParamikoSFTPFileSystem | None):
+        self._controller.fs = value
+
+    @property
+    def _config(self) -> ResolvedHostConfig | None:
+        return self._controller.config
+
+    @_config.setter
+    def _config(self, value: ResolvedHostConfig | None):
+        self._controller.config = value
+
+    @property
+    def _project_index(self):
+        return self._controller.project_index
+
+    @_project_index.setter
+    def _project_index(self, value):
+        self._controller.project_index = value
+
+    @property
+    def _active_project_root(self) -> PurePosixPath | None:
+        return self._controller.active_project_root
+
+    @_active_project_root.setter
+    def _active_project_root(self, value: PurePosixPath | None):
+        self._controller.active_project_root = value
+
+    @property
+    def _cache_manager(self):
+        return self._controller.cache_manager
+
+    @_cache_manager.setter
+    def _cache_manager(self, value):
+        self._controller.cache_manager = value
 
     def delete(self):
         self._disconnect()
@@ -97,6 +138,7 @@ class CryoRemoteTool(ToolInstance):
     def action_show(self):
         self.display(True)
         if self._fs is not None and self._config is not None:
+            self._sync_widget_from_controller()
             self._widget.show_browse_page()
         else:
             self._widget.show_connection_page()
@@ -232,15 +274,19 @@ class CryoRemoteTool(ToolInstance):
             self._widget.show_status(f"Connection failed: {exc}", error=True)
             return
 
-        self._disconnect()
-        self._fs = fs
-        self._config = config
+        try:
+            self._controller.attach_connected_fs(fs, config)
+        except Exception as exc:
+            fs.close()
+            self.session.logger.error(f"CryoRemote connection failed: {exc}")
+            self._widget.show_status(f"Connection failed: {exc}", error=True)
+            return
         self._target_key = active_target_key
         self._widget.set_connected(True)
         self._widget.set_root_value(str(config.root), source=resolved_root_source)
         self._save_preferences(payload, config, root_source=root_source)
         self._widget.set_session_target(session_target_text(config))
-        self._show_directory(config.root, root_entry=root_entry)
+        self._sync_widget_from_controller(root_entry=root_entry)
         self._widget.show_browse_page()
 
         message = f"Connected to {config.user or '?'}@{config.hostname}:{config.port}"
@@ -255,13 +301,8 @@ class CryoRemoteTool(ToolInstance):
 
     def _disconnect(self):
         self._watch_timer.stop()
-        if self._fs is not None:
-            self._fs.close()
-            self._fs = None
-        self._config = None
+        self._controller.disconnect()
         self._target_key = None
-        self._project_index = None
-        self._active_project_root = None
         self._widget.clear_project()
         self._widget.clear_model()
         self._widget.set_connected(False)
@@ -275,7 +316,12 @@ class CryoRemoteTool(ToolInstance):
         if self._fs is None or self._config is None:
             self._widget.show_status("CryoRemote is not connected.", warning=True)
             return
-        self._show_directory(self._config.root)
+        try:
+            self._sync_browse_result(self._controller.refresh_current_root())
+        except Exception as exc:
+            self.session.logger.warning(f"CryoRemote could not refresh {self._config.root}: {exc}")
+            self._widget.show_status(f"Refresh failed: {exc}", warning=True)
+            return
         self._widget.show_status("Tree and project refreshed.")
         self._sync_toolbar_state()
 
@@ -284,15 +330,28 @@ class CryoRemoteTool(ToolInstance):
             self._widget.show_status("No RELION project is active under the current root.", warning=True)
             self._sync_toolbar_state()
             return
-        self._reload_project_index(preferred_job_id=self._widget.current_job_id(), announce=True)
+        try:
+            self._controller.refresh_pipeline()
+            self._sync_project_widget(preferred_job_id=self._widget.current_job_id())
+            self._sync_preview_for_current_root()
+        except Exception as exc:
+            self.session.logger.warning(f"CryoRemote could not refresh RELION project index: {exc}")
+            self._widget.show_status(f"Pipeline refresh failed: {exc}", warning=True)
+            return
+        self._widget.show_status(f"RELION pipeline refreshed from {self._active_project_root}.")
+        self._sync_toolbar_state()
 
     def _poll_project(self):
         if self._fs is None or self._active_project_root is None:
             return
-        self._reload_project_index(preferred_job_id=self._widget.current_job_id(), announce=False)
+        try:
+            self._controller.refresh_pipeline()
+        except Exception:
+            return
+        self._sync_project_widget(preferred_job_id=self._widget.current_job_id())
 
     def _clear_cache(self):
-        self._cache_manager.clear()
+        self._controller.clear_cache()
         self._widget.show_status("Cache cleared.")
         self.session.logger.info("CryoRemote cache cleared.")
         self._sync_toolbar_state()
@@ -302,27 +361,7 @@ class CryoRemoteTool(ToolInstance):
             return
 
         self._remember_entry_location(entry)
-        self._activate_project_for_path(entry.path if entry.is_dir else entry.path.parent, announce=False)
-
-        if entry.is_dir:
-            preview = self._preview_for_directory(entry)
-        elif is_text_previewable(entry.path):
-            preview = preview_for_text(entry, self._fs.read_bytes_head(entry.path, 65536))
-        elif is_mrc_previewable(entry.path):
-            preview = preview_for_mrc(entry, self._fs.read_bytes_head(entry.path, 4096))
-        else:
-            preview = PreviewResult(
-                title=entry.name,
-                body=f"Path: {entry.path}\nType: {entry.entry_type}\nSize: {entry.size or 'unknown'}",
-            )
-
-        related_job = self._job_for_entry(entry)
-        if related_job is not None and not preview.related_files:
-            preview.related_files = related_job.artifacts.related_files
-            preview.notes = tuple(dict.fromkeys(preview.notes + related_job.notes))
-            if self._widget.current_job_id() != related_job.job_id:
-                self._widget.select_job(related_job.job_id, emit=False)
-        self._widget.update_preview(preview)
+        self._sync_preview_payload(self._controller.preview_path(entry.path))
         self._sync_toolbar_state()
 
     def _pipeline_job_selected(self, job_id: str | None):
@@ -357,16 +396,7 @@ class CryoRemoteTool(ToolInstance):
             return
 
         try:
-            local_path = self._cache_path_for_entry(entry)
-            hidden = [local_path] if "mask" in entry.name.lower() else []
-            visible = [] if hidden else [local_path]
-            model_paths = [local_path] if is_model_path(entry.path) else []
-            open_artifacts(
-                self.session,
-                map_paths=visible if not model_paths else (),
-                model_paths=model_paths,
-                hidden_map_paths=hidden,
-            )
+            self._controller.open_path(entry.path)
             self._widget.show_status(f"Opened {entry.name}")
         except Exception as exc:
             self.session.logger.error(f"CryoRemote could not open {entry.path}: {exc}")
@@ -377,59 +407,34 @@ class CryoRemoteTool(ToolInstance):
             self._widget.show_status("Command file execution cancelled.")
             return
 
-        temp_path: Path | None = None
         try:
-            cached_script = self._cache_path_for_entry(entry)
-            script_text = cached_script.read_text(encoding="utf-8", errors="replace")
-            rewritten = rewrite_command_file_text(
-                script_text,
-                entry.path,
-                rewrite_remote_target=self._cache_command_file_target,
-            )
-            with tempfile.NamedTemporaryFile(
-                mode="w",
-                prefix=f"{entry.path.stem}.",
-                suffix=entry.path.suffix,
-                delete=False,
-                encoding="utf-8",
-            ) as handle:
-                handle.write(rewritten)
-                temp_path = Path(handle.name)
-
-            run_command_file(self.session, temp_path)
+            self._controller.open_path(entry.path)
             self._widget.show_status(f"Executed {entry.name}.")
-        except CommandFileRewriteError as exc:
-            self.session.logger.error(f"CryoRemote could not rewrite {entry.path}: {exc}")
-            self._widget.show_status(f"Command file failed: {exc}", error=True)
         except Exception as exc:
             self.session.logger.error(f"CryoRemote could not execute {entry.path}: {exc}")
             self._widget.show_status(f"Command file failed: {exc}", error=True)
-        finally:
-            if temp_path is not None:
-                temp_path.unlink(missing_ok=True)
 
     def _open_postprocess(self):
         job = self._selected_job()
         if job is None:
             self._widget.show_status("No RELION job is selected.", warning=True)
             return
-        if not (job.artifacts.postprocess_map or job.artifacts.latest_map):
-            self._widget.show_status("No postprocess/refine map was found for this job.", warning=True)
-            return
-        self._open_job_artifacts(job)
+        try:
+            self._controller.open_postprocess_model(job_path=job.job_dir)
+            self._widget.show_status(f"Opened {(job.artifacts.postprocess_map or job.artifacts.latest_map).name}.")
+            self._sync_toolbar_state()
+        except Exception as exc:
+            self.session.logger.error(f"CryoRemote could not open job artifacts: {exc}")
+            self._widget.show_status(f"Open failed: {exc}", error=True)
 
     def _open_half_maps(self):
         job = self._selected_job()
-        if job is None or not job.artifacts.half_map_1 or not job.artifacts.half_map_2:
+        if job is None:
             self._widget.show_status("Half maps were not found in this RELION job.", warning=True)
             return
 
         try:
-            first_entry = self._fs.info(job.artifacts.half_map_1)
-            second_entry = self._fs.info(job.artifacts.half_map_2)
-            local_first = self._cache_path_for_entry(first_entry)
-            local_second = self._cache_path_for_entry(second_entry)
-            open_half_maps(self.session, local_first, local_second)
+            self._controller.open_half_maps(job_path=job.job_dir)
             self._widget.show_status("Opened half maps.")
         except Exception as exc:
             self.session.logger.error(f"CryoRemote could not open half maps: {exc}")
@@ -475,7 +480,7 @@ class CryoRemoteTool(ToolInstance):
             return
         target = normalize_browse_path(self._config.root, path_text)
         try:
-            self._show_directory(target)
+            self._sync_browse_result(self._controller.browse(target))
             self._widget.show_status(f"Browsing {target}")
         except Exception as exc:
             self.session.logger.warning(f"CryoRemote could not browse to {target}: {exc}")
@@ -502,7 +507,7 @@ class CryoRemoteTool(ToolInstance):
             self._widget.show_status(f"Already browsing {target}")
             return
         try:
-            self._show_directory(target)
+            self._sync_browse_result(self._controller.browse(target))
             self._widget.show_status(f"Browsing {target}")
         except Exception as exc:
             self.session.logger.warning(f"CryoRemote could not set current directory to {target}: {exc}")
@@ -546,15 +551,11 @@ class CryoRemoteTool(ToolInstance):
     def _show_directory(self, path: PurePosixPath, *, root_entry: RemoteEntry | None = None):
         if self._fs is None or self._config is None:
             return
-        entry = root_entry or self._fs.info(path)
-        if not entry.is_dir:
-            raise SFTPConnectionError(f"Target is not a directory: {path}")
-        self._config.root = entry.path
-        self._widget.install_model(RemoteTreeModel(self._fs, entry))
-        self._widget.set_current_path(str(entry.path))
-        self._remember_entry_location(entry)
-        self._activate_project_for_path(entry.path, announce=False)
-        self._preview_entry(entry)
+        if root_entry is not None:
+            self._config.root = root_entry.path
+            self._sync_browse_result(self._controller.browse(root_entry.path), root_entry=root_entry)
+            return
+        self._sync_browse_result(self._controller.browse(path))
 
     def _job_preview(self, job: RelionJobNode) -> PreviewResult:
         snippet = self._job_preview_snippet(job)
@@ -600,21 +601,10 @@ class CryoRemoteTool(ToolInstance):
             self._widget.show_status(f"Open failed: {exc}", error=True)
 
     def _cache_path_for_entry(self, entry: RemoteEntry) -> Path:
-        if self._fs is None or self._config is None:
-            raise RuntimeError("CryoRemote is not connected.")
-        return self._cache_manager.ensure_cached(
-            self._config.alias,
-            entry,
-            lambda output: self._fs.get_file(entry.path, output),
-        )
+        return self._controller._cache_path_for_entry(entry)
 
     def _cache_command_file_target(self, remote_path: PurePosixPath) -> Path:
-        if self._fs is None:
-            raise RuntimeError("CryoRemote is not connected.")
-        entry = self._fs.info(remote_path)
-        if not entry.is_file:
-            raise RuntimeError(f"Remote open target is not a file: {remote_path}")
-        return self._cache_path_for_entry(entry)
+        return self._controller._cache_command_file_target(remote_path)
 
     def _activate_project_for_path(self, path: PurePosixPath, *, announce: bool):
         if self._fs is None or self._config is None:
@@ -766,6 +756,50 @@ class CryoRemoteTool(ToolInstance):
         if override:
             return Path(override)
         return Path(app_dirs.user_cache_dir) / "CryoRemote"
+
+    def _sync_widget_from_controller(self, *, root_entry: RemoteEntry | None = None):
+        if self._fs is None or self._config is None:
+            self._widget.set_connected(False)
+            self._widget.set_session_target("Not connected")
+            self._widget.set_current_path("/")
+            self._widget.clear_project()
+            self._widget.clear_model()
+            self._watch_timer.stop()
+            return
+        if self._target_key is None:
+            self._target_key = target_key(self._config.alias, self._config)
+        self._widget.set_connected(True)
+        self._widget.set_session_target(session_target_text(self._config))
+        self._widget.set_root_value(str(self._config.root), source="manual")
+        self._sync_browse_result(self._controller.refresh_current_root(), root_entry=root_entry)
+
+    def _sync_browse_result(self, result, *, root_entry: RemoteEntry | None = None):
+        entry = root_entry or result.root_entry
+        self._widget.install_model(RemoteTreeModel(self._fs, entry))
+        self._widget.set_current_path(str(entry.path))
+        self._remember_entry_location(entry)
+        self._sync_project_widget(preferred_job_id=self._widget.current_job_id())
+        self._widget.update_preview(result.preview)
+        self._sync_toolbar_state()
+
+    def _sync_project_widget(self, *, preferred_job_id: str | None = None):
+        if self._project_index is None:
+            self._watch_timer.stop()
+            self._widget.clear_project()
+            return
+        self._widget.set_project(self._project_index, preferred_job_id=preferred_job_id)
+        self._watch_timer.start()
+
+    def _sync_preview_payload(self, payload):
+        self._sync_project_widget(preferred_job_id=self._widget.current_job_id())
+        if payload.related_job is not None and self._widget.current_job_id() != payload.related_job.job_id:
+            self._widget.select_job(payload.related_job.job_id, emit=False)
+        self._widget.update_preview(payload.preview)
+
+    def _sync_preview_for_current_root(self):
+        if self._config is None:
+            return
+        self._sync_preview_payload(self._controller.preview_path(self._config.root))
 
     def _action_availability(self) -> dict[str, bool]:
         entry = self._widget.current_entry()
