@@ -25,7 +25,8 @@ jobs:
         shell: powershell
         env:
           TAG_NAME: ${{ github.ref_name }}
-        run: python -c "import os, pathlib, tomllib; data = tomllib.loads(pathlib.Path('pyproject.toml').read_text(encoding='utf-8')); version = data['project']['version']; expected = f'v{version}'; actual = os.environ['TAG_NAME']; assert actual == expected, f'Tag/version mismatch: expected {expected} from pyproject.toml, got {actual}'; print(f'Validated release tag {actual}')"
+        run: |
+          python -c "import os, pathlib, tomllib; data = tomllib.loads(pathlib.Path('pyproject.toml').read_text(encoding='utf-8')); version = data['project']['version']; expected = f'v{version}'; actual = os.environ['TAG_NAME']; assert actual == expected, f'Tag/version mismatch: expected {expected} from pyproject.toml, got {actual}'; print(f'Validated release tag {actual}')"
 
       - name: Install ChimeraX
         id: install-chimerax
