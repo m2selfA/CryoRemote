@@ -39,10 +39,6 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Install innounp
-        shell: powershell
-        run: choco install innounp -y --no-progress
-
       - name: Install ChimeraX
         id: install-chimerax
         shell: powershell

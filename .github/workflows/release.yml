@@ -21,10 +21,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install innounp
-        shell: powershell
-        run: choco install innounp -y --no-progress
-
       - name: Validate tag matches package version
         shell: powershell
         env:

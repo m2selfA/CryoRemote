@@ -18,7 +18,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$innoUnpUrl = "https://github.com/WhatTheBlock/innounp/releases/download/v0.50/innounp.exe"
+$innoUnpZipUrl = "https://raw.githubusercontent.com/jrathlev/InnoUnpacker-Windows-GUI/refs/heads/master/innounp-2/bin/innounp-2.zip"
+$innoUnpZipSha256 = "1439F8D9E24B19E7D0B31B9C427BA4533387522A370C39280F17D3371EB7FEBF"
 
 if (-not $InstallerPath) {
     $InstallerPath = Join-Path $env:TEMP "ChimeraX-$Version.exe"
@@ -61,12 +62,22 @@ if (-not $InnoUnpPath) {
     if ($resolved) {
         $InnoUnpPath = $resolved.Source
     } else {
-        $InnoUnpPath = Join-Path $env:TEMP "innounp.exe"
+        $innoUnpRoot = Join-Path $env:TEMP "innounp-2"
+        $innoUnpZipPath = Join-Path $env:TEMP "innounp-2.zip"
+        $InnoUnpPath = Join-Path $innoUnpRoot "innounp.exe"
         if (-not (Test-Path -LiteralPath $InnoUnpPath)) {
-            & curl.exe -L $innoUnpUrl -o $InnoUnpPath
-            if ($LASTEXITCODE -ne 0) {
-                throw "Failed to download innounp.exe."
+            if (Test-Path -LiteralPath $innoUnpRoot) {
+                Remove-Item -LiteralPath $innoUnpRoot -Recurse -Force
             }
+            & curl.exe -L $innoUnpZipUrl -o $innoUnpZipPath
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to download innounp zip."
+            }
+            $zipHash = (Get-FileHash -LiteralPath $innoUnpZipPath -Algorithm SHA256).Hash.ToUpperInvariant()
+            if ($zipHash -ne $innoUnpZipSha256) {
+                throw "Unexpected innounp zip hash: $zipHash"
+            }
+            Expand-Archive -LiteralPath $innoUnpZipPath -DestinationPath $innoUnpRoot -Force
         }
     }
 }
